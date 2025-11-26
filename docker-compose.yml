@@ -1,0 +1,32 @@
+version: '3'
+services:
+  db:
+    image: hypriot/rpi-mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: flaskdb
+      MYSQL_USER: flaskuser
+      MYSQL_PASSWORD: flaskpw
+    ports:
+      - "3306:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+
+  web:
+    build: .
+    depends_on:
+      - db
+    environment:
+      DB_HOST: db
+      DB_USER: flaskuser
+      DB_PASSWORD: flaskpw
+      DB_NAME: flaskdb
+    ports:
+      - "5000:5000"
+    restart: unless-stopped
+    devices:
+      - /dev/video0:/dev/video0 # <--- AÑADE ESTA LÍNEA
+
+volumes:
+  db_data:
