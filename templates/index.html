@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Control de Cámara y Foco</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📹 Panel de Control</h1>
+        </header>
+        
+        <main>
+            <div class="video-container">
+                <h2>Cámara en Vivo</h2>
+                <img id="video-stream" src="{{ url_for('video_feed') }}" width="640" height="480">
+            </div>
+            
+            <div class="controls-container">
+                <h2>💡 Control del Foco</h2>
+                <div class="button-group">
+                    <button id="btn-green" class="btn btn-green">Verde</button>
+                    <button id="btn-red" class="btn btn-red">Rojo</button>
+                </div>
+                <p id="status-message"></p>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', (event) => {
+            const statusMessage = document.getElementById('status-message');
+
+            // Función para llamar a la API
+            async function setLightColor(color) {
+                try {
+                    const response = await fetch('/light', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ color: color }),
+                    });
+                    
+                    const data = await response.json();
+                    statusMessage.textContent = data.message;
+                    statusMessage.className = `status-${color}`;
+
+                } catch (error) {
+                    console.error('Error:', error);
+                    statusMessage.textContent = 'Error al cambiar el color.';
+                    statusMessage.className = 'status-error';
+                }
+            }
+
+            // Asignar eventos a los botones
+            document.getElementById('btn-green').addEventListener('click', () => {
+                setLightColor('green');
+            });
+
+            document.getElementById('btn-red').addEventListener('click', () => {
+                setLightColor('red');
+            });
+        });
+    </script>
+</body>
+</html>
